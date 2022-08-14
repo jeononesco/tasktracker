@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { taskStatus } from 'data/statics';
 import { Task } from '../../data/models/tasks';
 import { RootState } from '../../data/redux/store';
 
@@ -6,11 +7,14 @@ interface taskState {
   tasksItems: Task[];
 }
 
+interface UpdateTaskPayload {
+  task_id: string;
+  new_status: string;
+}
+
 const initialState: taskState = {
   tasksItems: [],
 };
-
-console.log('Task Slice');
 
 const taskSlice = createSlice({
   name: 'tasks',
@@ -18,23 +22,43 @@ const taskSlice = createSlice({
   reducers: {
     // somefunc: (state, action: PayloadAction<string>) =>
     addTask: (state, action: PayloadAction<string>) => {
-      console.log('What in the hell');
       state.tasksItems = [
         ...state.tasksItems,
         {
           id: Date.now(),
           title: action.payload,
-          status: 'todo',
+          status: 'todo' as taskStatus,
         },
       ];
     },
-    justPrint: state => {
-      console.log('I am fucking called');
+    removeTask: (state, action: PayloadAction<number>) => {
+      state.tasksItems = state.tasksItems.filter(
+        task => task.id !== action.payload,
+      );
+    },
+    updateTaskStatus: (
+      state,
+      action: PayloadAction<UpdateTaskPayload>,
+    ) => {
+      console.log('This is the state');
+      const { task_id, new_status } = action.payload;
+
+      let status = action.payload.new_status as taskStatus;
+
+      state.tasksItems = state.tasksItems.map(task => {
+        if (task.id.toString() === task_id) {
+          return {
+            ...task,
+            status,
+          };
+        }
+        return task;
+      });
     },
   },
 });
 
-export const { addTask, justPrint } = taskSlice.actions;
+export const { addTask, removeTask, updateTaskStatus } = taskSlice.actions;
 
 export const selectTasks = (state: RootState) => state.tasks.tasksItems;
 

@@ -6,16 +6,19 @@ import {
   openNewTaskModal,
   selectNewTaskModal,
 } from 'data';
-import { addTask, justPrint, selectTasks } from './TasksSlice';
+import { addTask, selectTasks, updateTaskStatus } from './TasksSlice';
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import useBreakpoints from '../../hooks/useBreakpoints';
 import styles from './tasks.module.scss';
 import Fab from '@mui/material/Fab';
 import AddIcon from '@mui/icons-material/Add';
 import AddTaskIcon from '@mui/icons-material/AddTask';
-
+import TaskList from './TaskList';
 import CloseIcon from '@mui/icons-material/Close';
+import { taskStatuses } from 'data/statics';
+import { DragDropContext, DropResult } from 'react-beautiful-dnd';
+import { Container, flexbox } from '@mui/system';
+import { CustomStyles } from './TasksStyles';
 
 export const TasksPane: React.FC = () => {
   const dispatch = useDispatch();
@@ -23,44 +26,15 @@ export const TasksPane: React.FC = () => {
   const tasksList = useSelector(selectTasks);
   const [task, setTask] = useState<string>('');
 
-  console.log('tasksList');
-  console.log(tasksList);
-
-  const CustomNewTaskModalStyles = () => {
-    let style = default_modal_style;
-    const { isXs, isSm, isMd, isLg, active } = useBreakpoints();
-    if (isXs) {
-      return {
-        ...style,
-        top: '32.6%',
-        width: '85%',
-      };
-    }
-    if (isMd) {
-      return {
-        ...style,
-        top: '32.6%',
-        left: '20%',
-      };
-    } else if (isLg) {
-      return {
-        ...style,
-        top: '25%',
-        left: '21%',
-      };
-    }
-    return style;
-  };
-
   const NewTaskModal = () => {
     return (
       <ModalControl
         open={newTaskModal}
         handleClose={() => {}}
-        styles={CustomNewTaskModalStyles()}
+        styles={CustomStyles().newTask}
       >
         <form onSubmit={handleAddTask}>
-          <Box sx={CustomNewTaskModalStyles()}>
+          <Box sx={CustomStyles().newTask}>
             <IconButton
               aria-label="close"
               onClick={() => {
@@ -105,7 +79,10 @@ export const TasksPane: React.FC = () => {
   const NewTaskButton = () => {
     return (
       <Fab
-        color="secondary"
+        sx={{
+          m: '10px',
+        }}
+        color="primary"
         aria-label="add"
         onClick={() => {
           dispatch(openNewTaskModal());
@@ -119,19 +96,28 @@ export const TasksPane: React.FC = () => {
   const handleAddTask = (e: React.FormEvent) => {
     e.preventDefault();
     if (task) {
-      console.log('b4 dispatch');
-      console.log(addTask(task));
       dispatch(addTask(task));
-
-      dispatch(justPrint());
-
-      console.log(justPrint());
-      console.log('aft dispatch');
       setTask('');
       dispatch(closeNewTaskModal());
-
-      console.log(closeNewTaskModal());
     }
+  };
+
+  const onDragEnd = (result: DropResult) => {
+    console.log(result);
+    const { source, destination, draggableId } = result;
+    if (!destination) return;
+    if (
+      destination.droppableId === source.droppableId &&
+      destination.index === source.index
+    )
+      return;
+
+    dispatch(
+      updateTaskStatus({
+        task_id: draggableId,
+        new_status: destination.droppableId,
+      }),
+    );
   };
 
   return (
@@ -140,6 +126,25 @@ export const TasksPane: React.FC = () => {
       <div className={styles.tools}>
         {NewTaskButton()}
         {NewTaskModal()}
+        <Box sx={CustomStyles().container}>
+          <DragDropContext onDragEnd={onDragEnd}>
+            {Object.entries(taskStatuses).map(
+              ([status, description], _) => {
+                const tasks = tasksList.filter(
+                  task => task.status === status,
+                );
+                return (
+                  <TaskList
+                    tasks_list={tasks}
+                    key={status}
+                    id={status}
+                    description={description}
+                  />
+                );
+              },
+            )}
+          </DragDropContext>
+        </Box>
       </div>
     </>
   );
