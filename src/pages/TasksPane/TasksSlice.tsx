@@ -16,18 +16,23 @@ const initialState: taskState = {
   tasksItems: [],
 };
 
+interface AddTaskPayload {
+  title: string;
+  status: string;
+}
+
 const taskSlice = createSlice({
   name: 'tasks',
   initialState,
   reducers: {
     // somefunc: (state, action: PayloadAction<string>) =>
-    addTask: (state, action: PayloadAction<string>) => {
+    addTask: (state, action: PayloadAction<AddTaskPayload>) => {
       state.tasksItems = [
         ...state.tasksItems,
         {
           id: Date.now(),
-          title: action.payload,
-          status: 'todo' as taskStatus,
+          title: action.payload.title,
+          status: action.payload.status as taskStatus,
         },
       ];
     },
@@ -40,7 +45,6 @@ const taskSlice = createSlice({
       state,
       action: PayloadAction<UpdateTaskPayload>,
     ) => {
-      console.log('This is the state');
       const { task_id, new_status } = action.payload;
 
       let status = action.payload.new_status as taskStatus;

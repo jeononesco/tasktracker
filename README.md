@@ -15,3 +15,5 @@ install `npm install @mui/icons-material`
 install `npm install @types/react-redux`
 
 install `npm i --save-dev @types/react-beautiful-dnd`
+
+install `npm install @mui/styles`

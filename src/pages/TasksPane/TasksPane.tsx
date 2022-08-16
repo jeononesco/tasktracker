@@ -1,10 +1,21 @@
-import { Box, Typography, IconButton, TextField } from '@mui/material';
+import {
+  Box,
+  Typography,
+  IconButton,
+  TextField,
+  Icon,
+  Toolbar,
+} from '@mui/material';
 import { ButtonControl } from 'components/button/Button';
-import ModalControl, { default_modal_style } from 'components/modal/Modal';
+import ModalControl, {
+  default_modal_style_scss,
+} from 'components/modal/Modal';
+import AssignmentIcon from '@mui/icons-material/Assignment';
 import {
   closeNewTaskModal,
   openNewTaskModal,
   selectNewTaskModal,
+  selectTaskStatus,
 } from 'data';
 import { addTask, selectTasks, updateTaskStatus } from './TasksSlice';
 import React, { useState } from 'react';
@@ -17,24 +28,20 @@ import TaskList from './TaskList';
 import CloseIcon from '@mui/icons-material/Close';
 import { taskStatuses } from 'data/statics';
 import { DragDropContext, DropResult } from 'react-beautiful-dnd';
-import { Container, flexbox } from '@mui/system';
-import { CustomStyles } from './TasksStyles';
+import { ViewKanban } from '@mui/icons-material';
 
 export const TasksPane: React.FC = () => {
   const dispatch = useDispatch();
   const newTaskModal = useSelector(selectNewTaskModal);
+  const selectedTaskStatusAdd = useSelector(selectTaskStatus);
   const tasksList = useSelector(selectTasks);
   const [task, setTask] = useState<string>('');
 
   const NewTaskModal = () => {
     return (
-      <ModalControl
-        open={newTaskModal}
-        handleClose={() => {}}
-        styles={CustomStyles().newTask}
-      >
+      <ModalControl open={newTaskModal} handleClose={() => {}}>
         <form onSubmit={handleAddTask}>
-          <Box sx={CustomStyles().newTask}>
+          <Box className={default_modal_style_scss}>
             <IconButton
               aria-label="close"
               onClick={() => {
@@ -76,34 +83,20 @@ export const TasksPane: React.FC = () => {
     );
   };
 
-  const NewTaskButton = () => {
-    return (
-      <Fab
-        sx={{
-          m: '10px',
-        }}
-        color="primary"
-        aria-label="add"
-        onClick={() => {
-          dispatch(openNewTaskModal());
-        }}
-      >
-        <AddIcon />
-      </Fab>
-    );
-  };
-
   const handleAddTask = (e: React.FormEvent) => {
     e.preventDefault();
     if (task) {
-      dispatch(addTask(task));
+      const payload = {
+        title: task,
+        status: selectedTaskStatusAdd,
+      };
+      dispatch(addTask(payload));
       setTask('');
       dispatch(closeNewTaskModal());
     }
   };
 
   const onDragEnd = (result: DropResult) => {
-    console.log(result);
     const { source, destination, draggableId } = result;
     if (!destination) return;
     if (
@@ -122,11 +115,28 @@ export const TasksPane: React.FC = () => {
 
   return (
     <>
-      <div className={styles.header}>TaskTrack</div>
+      <div className={styles.header}>
+        <Toolbar>
+          <IconButton
+            size="large"
+            edge="start"
+            color="inherit"
+            aria-label="menu"
+            sx={{ mr: 2 }}
+          >
+            <ViewKanban />
+          </IconButton>
+          <Typography variant="h6">
+            <b>TaskTrack </b>
+          </Typography>
+
+          <div style={{ color: 'grey' }}>{'| Track your tasks'}</div>
+        </Toolbar>
+      </div>
       <div className={styles.tools}>
-        {NewTaskButton()}
+        {/* {NewTaskButton()} */}
         {NewTaskModal()}
-        <Box sx={CustomStyles().container}>
+        <Box className={styles['task-lists-container']}>
           <DragDropContext onDragEnd={onDragEnd}>
             {Object.entries(taskStatuses).map(
               ([status, description], _) => {

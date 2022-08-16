@@ -1,20 +1,40 @@
 import React from 'react';
-import Box from '@mui/material/Box';
-import Paper from '@mui/material/Paper';
-import IconButton from '@mui/material/IconButton';
-import Stack from '@mui/material/Stack';
-import Container from '@mui/material/Container';
-import DeleteIcon from '@mui/icons-material/Delete';
-import EditIcon from '@mui/icons-material/Edit';
+
+// COMPONENTS
+import {
+  Typography,
+  IconButton,
+  Box,
+  Tooltip,
+  Chip,
+  Badge,
+} from '@mui/material';
+import {
+  Droppable,
+  DroppableProvided,
+  DroppableStateSnapshot,
+} from 'react-beautiful-dnd';
+import {
+  AddBox,
+  AssignmentIndOutlined,
+  EmojiObjects,
+  Grading,
+  Help,
+  HelpOutline,
+  LightbulbCircle,
+  ListAltOutlined,
+  QuestionMarkRounded,
+  Settings,
+  TaskAlt,
+} from '@mui/icons-material';
+import SingleTask from './SingleTask';
+
+// DATA
 import { Task } from 'data/models/tasks';
-
 import { useDispatch } from 'react-redux';
-import { removeTask } from './TasksSlice';
-import { Typography } from '@mui/material';
+import { openNewTaskModal } from 'data';
 
-import { Droppable, Draggable } from 'react-beautiful-dnd';
-import { taskStatus } from 'data/statics';
-import { CustomStyles } from './TasksStyles';
+import styles from './tasks.module.scss';
 
 interface TaskListProps {
   tasks_list: Task[];
@@ -22,103 +42,138 @@ interface TaskListProps {
   description: string;
 }
 
-interface TaskProps {
-  task: Task;
-  index: number;
-  isDraggingOver: boolean;
-}
-
 const TaskList: React.FC<TaskListProps> = ({
   tasks_list,
   description,
   id,
 }) => {
+  const dispatch = useDispatch();
+
+  const showTaskListHeader = () => {
+    const showIcon = () => {
+      switch (id) {
+        case 'todo':
+          return <EmojiObjects />;
+        case 'ongoing':
+          return <Settings />;
+        case 'review':
+          return <Grading />;
+        case 'done':
+          return <TaskAlt />;
+        default:
+          return <ListAltOutlined />;
+      }
+    };
+    return (
+      <Box className={`${styles['task-list-header']} ${styles[id]}`}>
+        <Chip
+          icon={showIcon()}
+          label={description}
+          sx={{
+            fontSize: '0.7em',
+            fontFamily: 'Trebuchet MS',
+            fontWeight: 'bold',
+            backgroundColor: 'white',
+            color: styles.primaryColor,
+          }}
+        />
+        <Badge
+          badgeContent={tasks_list.length}
+          color="primary"
+          anchorOrigin={{
+            vertical: 'top',
+            horizontal: 'left',
+          }}
+        ></Badge>
+        {tasks_list.length > 0 && (
+          <Tooltip title="Create New Task">
+            <IconButton
+              aria-label="add"
+              size="small"
+              sx={{
+                position: 'absolute',
+                right: '1px',
+                top: '1px',
+              }}
+              onClick={() => {
+                dispatch(openNewTaskModal(id));
+              }}
+            >
+              <AddBox />
+            </IconButton>
+          </Tooltip>
+        )}
+      </Box>
+    );
+  };
+
+  const showCreateTask = () => {
+    return (
+      <Box
+        sx={{
+          right: '2px',
+          color: 'gray',
+          '&:hover': {
+            transform: 'scale(1.03)',
+            color: 'black',
+          },
+          display: 'flex',
+          alignItems: 'center',
+          verticalAlign: 'middle',
+          cursor: 'pointer',
+          gap: '10px',
+        }}
+        onClick={() => {
+          dispatch(openNewTaskModal(id));
+        }}
+      >
+        <AddBox /> <div>Create New Task</div>
+      </Box>
+    );
+  };
+
+  const showTasks = (
+    provided: DroppableProvided,
+    snapshot: DroppableStateSnapshot,
+  ) => {
+    return (
+      <Box
+        ref={provided.innerRef}
+        {...provided.droppableProps}
+        className={`${styles['task-list-body']}`}
+      >
+        {tasks_list.length > 0
+          ? tasks_list.map((task, index) => (
+              <SingleTask
+                task={task}
+                index={index}
+                key={task.id}
+                isDraggingOver={snapshot.isDraggingOver}
+              />
+            ))
+          : showCreateTask()}
+
+        {provided.placeholder}
+      </Box>
+    );
+  };
+
   return (
     <Droppable droppableId={id}>
       {(provided, snapshot) => {
-        let taskListStyle = CustomStyles().taskList;
+        let taskListStyle = [styles[`task-list`]];
         if (snapshot.isDraggingOver) {
-          taskListStyle = {
-            ...taskListStyle,
-            backgroundColor: '#b3b3b3',
-          };
+          taskListStyle.push(styles[`dragging-over`]);
         }
+        taskListStyle.push(styles[id]);
         return (
-          <Box sx={taskListStyle}>
-            <Typography sx={{ m: '0 0 20px 0', fontFamily: 'Courier' }}>
-              {description}
-            </Typography>
-            <Box ref={provided.innerRef} {...provided.droppableProps}>
-              {tasks_list.map((task, index) => (
-                <SingleTask
-                  task={task}
-                  index={index}
-                  key={task.id}
-                  isDraggingOver={snapshot.isDraggingOver}
-                />
-              ))}
-              {provided.placeholder}
-            </Box>
+          <Box className={taskListStyle.join(' ')}>
+            {showTaskListHeader()}
+            {showTasks(provided, snapshot)}
           </Box>
         );
       }}
     </Droppable>
-  );
-};
-
-const SingleTask: React.FC<TaskProps> = ({ task, index }) => {
-  const dispatch = useDispatch();
-
-  return (
-    <Draggable draggableId={task.id.toString()} index={index}>
-      {(provided, snapshot) => {
-        let singleTaskStyle = CustomStyles().singleTask;
-        if (snapshot.isDragging) {
-          singleTaskStyle = {
-            ...singleTaskStyle,
-            boxShadow: '0 0 20px black',
-          };
-        }
-        return (
-          <Paper
-            key={task.id}
-            elevation={3}
-            sx={singleTaskStyle}
-            {...provided.dragHandleProps}
-            {...provided.draggableProps}
-            ref={provided.innerRef}
-          >
-            <Stack direction="row" sx={CustomStyles().taskAction}>
-              <IconButton
-                aria-label="edit"
-                sx={{
-                  '&:hover': {
-                    backgroundColor: '#ccc',
-                  },
-                }}
-              >
-                <EditIcon />
-              </IconButton>
-
-              <IconButton
-                aria-label="delete"
-                sx={{
-                  '&:hover': {
-                    backgroundColor: '#ccc',
-                  },
-                }}
-                onClick={() => {
-                  dispatch(removeTask(task.id));
-                }}
-              >
-                <DeleteIcon />
-              </IconButton>
-            </Stack>
-            <Typography>{task.title}</Typography>
-          </Paper>
-        );
-      }}
-    </Draggable>
   );
 };
 
