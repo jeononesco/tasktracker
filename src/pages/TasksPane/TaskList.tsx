@@ -35,6 +35,7 @@ import { useDispatch } from 'react-redux';
 import { openNewTaskModal } from 'data';
 
 import styles from './tasks.module.scss';
+import { showIcon } from 'data/statics';
 
 interface TaskListProps {
   tasks_list: Task[];
@@ -50,32 +51,12 @@ const TaskList: React.FC<TaskListProps> = ({
   const dispatch = useDispatch();
 
   const showTaskListHeader = () => {
-    const showIcon = () => {
-      switch (id) {
-        case 'todo':
-          return <EmojiObjects />;
-        case 'ongoing':
-          return <Settings />;
-        case 'review':
-          return <Grading />;
-        case 'done':
-          return <TaskAlt />;
-        default:
-          return <ListAltOutlined />;
-      }
-    };
     return (
       <Box className={`${styles['task-list-header']} ${styles[id]}`}>
         <Chip
-          icon={showIcon()}
+          icon={showIcon(id)}
           label={description}
-          sx={{
-            fontSize: '0.7em',
-            fontFamily: 'Trebuchet MS',
-            fontWeight: 'bold',
-            backgroundColor: 'white',
-            color: styles.primaryColor,
-          }}
+          className={styles['task-status-chip']}
         />
         <Badge
           badgeContent={tasks_list.length}

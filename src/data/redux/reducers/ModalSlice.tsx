@@ -8,7 +8,7 @@ interface modalState {
 
 const initialState: modalState = {
   newTaskModal: false,
-  newTaskSelectedStatus: 'todo',
+  newTaskSelectedStatus: 'backlog',
 };
 
 const modalSlice = createSlice({
@@ -21,7 +21,7 @@ const modalSlice = createSlice({
     },
     closeNewTaskModal: state => {
       state.newTaskModal = false;
-      state.newTaskSelectedStatus = 'todo';
+      state.newTaskSelectedStatus = 'backlog';
     },
     // somefunc: (state, action: PayloadAction<string>) =>
   },

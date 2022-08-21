@@ -1,22 +1,8 @@
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
-import { FunctionComponent, ReactNode } from 'react';
+import { FunctionComponent } from 'react';
 import styles from './modal.module.scss';
 
-export const default_modal_style = {
-  position: 'absolute' as 'absolute',
-  top: '30%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  width: 500,
-  bgcolor: 'background.paper',
-  borderRadius: '10px',
-  boxShadow: 24,
-  p: 4,
-};
-
-export const default_modal_style_scss = styles['default-modal-style'];
+export const modal_style = styles['modal-style'];
 
 type modalFields = {
   open: boolean;

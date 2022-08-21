@@ -1,21 +1,5 @@
 @import '../../assets/globals.module.scss';
 
-$todo-primary: #ffd89c;
-$todo-secondary: #fcecd5;
-$todo-shadow: #e2ceaf;
-
-$ongoing-primary: #fff3a2;
-$ongoing-secondary: #fffce7;
-$ongoing-shadow: #d6d4c5;
-
-$review-primary: #c8e4fa;
-$review-secondary: #dfeef9;
-$review-shadow: #c6d2db;
-
-$done-primary: #c0fec4;
-$done-secondary: #e6fce7;
-$done-shadow: #cbe0cc;
-
 .header-sub {
   font-size: 5px;
   color: rgb(87, 87, 87);
@@ -72,17 +56,17 @@ $done-shadow: #cbe0cc;
     width: 100%;
   }
 
-  &.todo {
-    background-color: $todo-secondary;
+  &.backlog {
+    background-color: $backlog-secondary;
     &.dragging-over {
-      background-color: $todo-shadow;
+      background-color: $backlog-shadow;
     }
   }
 
-  &.ongoing {
-    background-color: $ongoing-secondary;
+  &.wip {
+    background-color: $wip-secondary;
     &.dragging-over {
-      background-color: $ongoing-shadow;
+      background-color: $wip-shadow;
     }
   }
 
@@ -131,14 +115,14 @@ $done-shadow: #cbe0cc;
   // box-shadow: 0 5px 9px -2px #ccc;
   display: flex;
 
-  &.todo {
-    background-color: $todo-primary;
-    box-shadow: 0 5px 9px -2px $todo-shadow;
+  &.backlog {
+    background-color: $backlog-primary;
+    box-shadow: 0 5px 9px -2px $backlog-shadow;
   }
 
-  &.ongoing {
-    background-color: $ongoing-primary;
-    box-shadow: 0 5px 9px -2px $ongoing-shadow;
+  &.wip {
+    background-color: $wip-primary;
+    box-shadow: 0 5px 9px -2px $wip-shadow;
   }
 
   &.review {
@@ -166,4 +150,12 @@ $done-shadow: #cbe0cc;
   filter: drop-shadow(0px 2px 8px rgba(0, 0, 0, 0.32));
   margin-top: 1.5;
   z-index: 0;
+}
+
+.task-status-chip {
+  font-size: 0.7em;
+  font-family: Trebuchet MS;
+  font-weight: bold;
+  background-color: white;
+  color: $primary-color;
 }

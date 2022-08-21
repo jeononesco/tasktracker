@@ -1,34 +1,34 @@
+import React, { useState } from 'react';
 import {
   Box,
   Typography,
   IconButton,
   TextField,
-  Icon,
   Toolbar,
+  Chip,
 } from '@mui/material';
 import { ButtonControl } from 'components/button/Button';
-import ModalControl, {
-  default_modal_style_scss,
-} from 'components/modal/Modal';
-import AssignmentIcon from '@mui/icons-material/Assignment';
+import ModalControl, { modal_style } from 'components/modal/Modal';
+import AddTaskIcon from '@mui/icons-material/AddTask';
+import CloseIcon from '@mui/icons-material/Close';
+import { showIcon, taskStatuses } from 'data/statics';
+import { DragDropContext, DropResult } from 'react-beautiful-dnd';
+import { ViewKanban } from '@mui/icons-material';
+
+import TaskList from './TaskList';
+
+// DATA
+import { addTask, selectTasks, updateTaskStatus } from './TasksSlice';
+import { useSelector, useDispatch } from 'react-redux';
 import {
   closeNewTaskModal,
-  openNewTaskModal,
   selectNewTaskModal,
   selectTaskStatus,
 } from 'data';
-import { addTask, selectTasks, updateTaskStatus } from './TasksSlice';
-import React, { useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+
+//STYLES
 import styles from './tasks.module.scss';
-import Fab from '@mui/material/Fab';
-import AddIcon from '@mui/icons-material/Add';
-import AddTaskIcon from '@mui/icons-material/AddTask';
-import TaskList from './TaskList';
-import CloseIcon from '@mui/icons-material/Close';
-import { taskStatuses } from 'data/statics';
-import { DragDropContext, DropResult } from 'react-beautiful-dnd';
-import { ViewKanban } from '@mui/icons-material';
+import modal_styles from '../../components/modal/modal.module.scss';
 
 export const TasksPane: React.FC = () => {
   const dispatch = useDispatch();
@@ -39,43 +39,64 @@ export const TasksPane: React.FC = () => {
 
   const NewTaskModal = () => {
     return (
-      <ModalControl open={newTaskModal} handleClose={() => {}}>
+      <ModalControl
+        open={newTaskModal}
+        handleClose={() => dispatch(closeNewTaskModal())}
+      >
         <form onSubmit={handleAddTask}>
-          <Box className={default_modal_style_scss}>
-            <IconButton
-              aria-label="close"
-              onClick={() => {
-                dispatch(closeNewTaskModal());
-              }}
-              sx={{
-                position: 'absolute',
-                right: 8,
-                top: 8,
-                color: theme => theme.palette.grey[500],
-              }}
+          <Box
+            className={`${modal_style} ${modal_styles[selectedTaskStatusAdd]}`}
+          >
+            {/* MODAL HEADER */}
+            <Box
+              className={`${modal_styles['modal-header']} ${modal_styles[selectedTaskStatusAdd]}`}
             >
-              <CloseIcon />
-            </IconButton>
-
-            <Box sx={{ display: 'flex', alignItems: 'flex-end' }}>
-              <AddTaskIcon
-                sx={{ color: 'action.active', mr: 1, my: 0.5 }}
+              <Chip
+                icon={showIcon(selectedTaskStatusAdd)}
+                label={taskStatuses[selectedTaskStatusAdd]}
+                className={styles['task-status-chip']}
               />
-              <TextField
-                id="input-with-sx"
-                label="Enter Task"
-                variant="standard"
-                sx={{ width: '100%' }}
-                onChange={e => {
-                  setTask(e.target.value);
+              <div>New Task</div>
+              <IconButton
+                aria-label="close"
+                onClick={() => {
+                  dispatch(closeNewTaskModal());
                 }}
-              />
+                sx={{
+                  marginLeft: 'auto',
+                }}
+              >
+                <CloseIcon />
+              </IconButton>
             </Box>
 
-            <Box
-              sx={{ display: 'flex', justifyContent: 'flex-end', m: 1.5 }}
-            >
-              <ButtonControl text="Save" type="submit" />
+            {/* MODAL BODY */}
+
+            <Box className={modal_styles['modal-body']}>
+              <Box sx={{ display: 'flex', alignItems: 'flex-end' }}>
+                <AddTaskIcon
+                  sx={{ color: 'action.active', mr: 1, my: 0.5 }}
+                />
+                <TextField
+                  id="input-with-sx"
+                  label="Enter Task"
+                  variant="standard"
+                  sx={{ width: '100%' }}
+                  onChange={e => {
+                    setTask(e.target.value);
+                  }}
+                />
+              </Box>
+
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'flex-end',
+                  m: 1.5,
+                }}
+              >
+                <ButtonControl text="Save" type="submit" />
+              </Box>
             </Box>
           </Box>
         </form>

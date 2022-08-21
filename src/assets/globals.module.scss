@@ -22,6 +22,22 @@ $background-color: #ffffff;
   }
 }
 
+$backlog-primary: #ffd89c;
+$backlog-secondary: #fcecd5;
+$backlog-shadow: #e2ceaf;
+
+$wip-primary: #fff3a2;
+$wip-secondary: #fffce7;
+$wip-shadow: #d6d4c5;
+
+$review-primary: #c8e4fa;
+$review-secondary: #dfeef9;
+$review-shadow: #c6d2db;
+
+$done-primary: #c0fec4;
+$done-secondary: #e6fce7;
+$done-shadow: #cbe0cc;
+
 :export {
   primaryColor: $primary-color;
   backgroundColor: $background-color;
